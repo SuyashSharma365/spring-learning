@@ -3,7 +3,11 @@ package com.suyash.springlearning.controller;
 import com.suyash.springlearning.entity.UserEntity;
 import com.suyash.springlearning.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 
 @RestController
@@ -15,24 +19,40 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/")
-    public boolean createUser(@RequestBody UserEntity userEntity){
-        userService.saveEntry(userEntity);
-        return true;
+    public ResponseEntity<UserEntity> createUser(@RequestBody UserEntity userEntity){
+
+        try{
+            userService.saveEntry(userEntity);
+            return new ResponseEntity<>(userEntity , HttpStatus.CREATED);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     @GetMapping("/{userId}")
-    public UserEntity getUser(@PathVariable String userId){
-        return userService.findById(userId);
+    public ResponseEntity<UserEntity> getUser(@PathVariable String userId){
+        Optional<UserEntity>  userEntity = Optional.ofNullable(userService.findById(userId));
+        if(userEntity.isPresent()){
+            return new ResponseEntity<>(userEntity.get() , HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{userId}")
-    public boolean deleteUserById(@PathVariable String userId){
-        userService.deleteById(userId);
-        return true;
+    public ResponseEntity<?> deleteUserById(@PathVariable String userId){
+        UserEntity user = userService.findById(userId);
+
+        if(user != null){
+            userService.deleteById(userId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("/{userId}")
-    public boolean updateUser(@PathVariable String userId , @RequestBody UserEntity newUser){
+    public ResponseEntity<?> updateUser(@PathVariable String userId , @RequestBody UserEntity newUser){
         UserEntity oldUser = userService.findById(userId);
         if(oldUser != null){
 
@@ -48,10 +68,10 @@ public class UserController {
                             : oldUser.getDateOfBirth()
             );
             userService.saveEntry(oldUser);
-            return true;
+            return new ResponseEntity<>(HttpStatus.OK);
 
         }
-        return false;
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 }
