@@ -2,6 +2,7 @@ package com.suyash.springlearning.services;
 
 import com.suyash.springlearning.entity.UserEntity;
 import com.suyash.springlearning.repository.UserEntryRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +18,16 @@ public class UserService {
         userEntryRepository.save(userEntity);
     }
 
-    public UserEntity findById(String id){
+    public UserEntity findById(ObjectId id){
         return userEntryRepository.findById(id).orElse(null);
     }
 
-    public void deleteById(String id){
+    public void deleteById(ObjectId id){
         userEntryRepository.deleteById(id);
+    }
+
+    public UserEntity findByUserName(String userName){
+        return userEntryRepository.findByUserName(userName);
     }
 
 }

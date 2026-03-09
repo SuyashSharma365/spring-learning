@@ -11,7 +11,7 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("userEntry")
+@RequestMapping("users")
 public class UserController {
 
     //create service object
@@ -31,46 +31,47 @@ public class UserController {
 
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserEntity> getUser(@PathVariable String userId){
-        Optional<UserEntity>  userEntity = Optional.ofNullable(userService.findById(userId));
+    @GetMapping("/{userName}")
+    public ResponseEntity<UserEntity> getUser(@PathVariable String userName){
+        Optional<UserEntity>  userEntity = Optional.ofNullable(userService.findByUserName(userName));
         if(userEntity.isPresent()){
             return new ResponseEntity<>(userEntity.get() , HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUserById(@PathVariable String userId){
-        UserEntity user = userService.findById(userId);
+    @DeleteMapping("/{userName}")
+    public ResponseEntity<?> deleteUserById(@PathVariable String userName){
+        UserEntity user = userService.findByUserName(userName);
 
         if(user != null){
-            userService.deleteById(userId);
+            userService.deleteById(user.getId());
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(@PathVariable String userId , @RequestBody UserEntity newUser){
-        UserEntity oldUser = userService.findById(userId);
+
+    @PutMapping("/{userName}")
+    public ResponseEntity<?> updateUser(@PathVariable String userName, @RequestBody UserEntity newUser){
+
+        UserEntity oldUser = userService.findByUserName(userName);
+
         if(oldUser != null){
 
-            oldUser.setName(
-                    newUser.getName() != null && !newUser.getName().equals("")
-                            ? newUser.getName()
-                            : oldUser.getName()
-            );
+            if(newUser.getUserName() != null && !newUser.getUserName().isEmpty()){
+                oldUser.setUserName(newUser.getUserName());
+            }
 
-            oldUser.setDateOfBirth(
-                    newUser.getDateOfBirth() != null
-                            ? newUser.getDateOfBirth()
-                            : oldUser.getDateOfBirth()
-            );
+            if(newUser.getPassword() != null && !newUser.getPassword().isEmpty()){
+                oldUser.setPassword(newUser.getPassword());
+            }
+
             userService.saveEntry(oldUser);
-            return new ResponseEntity<>(HttpStatus.OK);
 
+            return new ResponseEntity<>(HttpStatus.OK);
         }
+
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 

@@ -1,53 +1,35 @@
 package com.suyash.springlearning.entity;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
-
-@Document(collection = "userEntry")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Document(collection = "users")
 public class UserEntity {
     @Id
-    private String id;
+    private ObjectId id;
 
-    private String name;
+    @Indexed(unique = true)
+    @NonNull
+    private String userName;
 
-    private Date dateOfBirth;
+    @NonNull
+    private String password;
 
-    public UserEntity(){
-    }
-
-    public UserEntity(String id , String name , Date dateofBirth){
-        this.id = id;
-        this.name = name;
-        this.dateOfBirth = dateofBirth;
-    }
-
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Date getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
+    @DBRef
+    private List<BlogEntity> blogs = new ArrayList<>();
 
 }
