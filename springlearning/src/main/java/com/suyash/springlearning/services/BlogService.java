@@ -7,6 +7,7 @@ import com.suyash.springlearning.repository.BlogEntryRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,14 +21,24 @@ public class BlogService {
     @Autowired
     private UserService userService;
 
+    @Transactional
     public void saveEntry(BlogEntity blogEntity , String userName){
-        UserEntity user = userService.findByUserName(userName);
 
-        if(user != null){
+        try{
+            UserEntity user = userService.findByUserName(userName);
+
+            if(user == null){
+                throw new RuntimeException("User not found");
+            }
+
             BlogEntity blog = blogEntryRepository.save(blogEntity);
             user.getBlogs().add(blog);
             userService.saveEntry(user);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+
 
     }
 
