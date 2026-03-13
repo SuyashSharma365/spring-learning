@@ -2,6 +2,8 @@ package com.suyash.springlearning.controller;
 
 import com.suyash.springlearning.entity.UserEntity;
 import com.suyash.springlearning.services.UserService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +20,7 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @PostMapping("/")
-    public ResponseEntity<UserEntity> createUser(@RequestBody UserEntity userEntity){
 
-        try{
-            userService.saveEntry(userEntity);
-            return new ResponseEntity<>(userEntity , HttpStatus.CREATED);
-        }
-        catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-    }
 
     @GetMapping("/{userName}")
     public ResponseEntity<UserEntity> getUser(@PathVariable String userName){
@@ -52,8 +43,12 @@ public class UserController {
     }
 
 
-    @PutMapping("/{userName}")
-    public ResponseEntity<?> updateUser(@PathVariable String userName, @RequestBody UserEntity newUser){
+    @PutMapping
+    public ResponseEntity<?> updateUser(@RequestBody UserEntity newUser){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String userName = authentication.getName();
 
         UserEntity oldUser = userService.findByUserName(userName);
 

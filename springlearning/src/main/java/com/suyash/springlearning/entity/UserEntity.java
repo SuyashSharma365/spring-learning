@@ -32,4 +32,6 @@ public class UserEntity {
     @DBRef
     private List<BlogEntity> blogs = new ArrayList<>();
 
+    private List<String>roles;
+
 }
