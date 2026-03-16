@@ -31,12 +31,13 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{userName}")
-    public ResponseEntity<?> deleteUserById(@PathVariable String userName){
-        UserEntity user = userService.findByUserName(userName);
+    @DeleteMapping
+    public ResponseEntity<?> deleteUserById(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = userService.findByUserName(authentication.getName());
 
         if(user != null){
-            userService.deleteById(user.getId());
+            userService.deleteByUserName(authentication.getName());
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -62,7 +63,7 @@ public class UserController {
                 oldUser.setPassword(newUser.getPassword());
             }
 
-            userService.saveEntry(oldUser);
+            userService.saveOldEntry(oldUser);
 
             return new ResponseEntity<>(HttpStatus.OK);
         }

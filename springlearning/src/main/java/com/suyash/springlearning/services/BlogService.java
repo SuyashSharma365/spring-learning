@@ -33,7 +33,7 @@ public class BlogService {
 
             BlogEntity blog = blogEntryRepository.save(blogEntity);
             user.getBlogs().add(blog);
-            userService.saveEntry(user);
+            userService.saveOldEntry(user);
 
         } catch (Exception e) {
             throw new RuntimeException(e);

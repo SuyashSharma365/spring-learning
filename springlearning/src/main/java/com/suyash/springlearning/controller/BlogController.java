@@ -9,6 +9,8 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,11 +26,14 @@ public class BlogController {
     @Autowired
     UserService userService;
 
-    @PostMapping("/{userName}")
-    public ResponseEntity<BlogEntity> createBlog(@RequestBody BlogEntity blogEntity , @PathVariable String userName){
+    @PostMapping
+    public ResponseEntity<BlogEntity> createBlog(@RequestBody BlogEntity blogEntity){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = userService.findByUserName(authentication.getName());
 
         try{
-            blogService.saveEntry(blogEntity , userName);
+            blogService.saveEntry(blogEntity , user.getUserName());
             return new ResponseEntity<>(blogEntity , HttpStatus.CREATED);
         }
         catch(Exception e){
@@ -37,9 +42,11 @@ public class BlogController {
 
     }
 
-    @GetMapping("/{userName}")
+    @GetMapping
     public ResponseEntity<?> getBlog(@PathVariable String userName){
-        UserEntity user = userService.findByUserName(userName);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = userService.findByUserName(authentication.getName());
+//        UserEntity user = userService.findByUserName(userName);
         List<BlogEntity> all = user.getBlogs();
         if(all != null && !all.isEmpty()){
             return new ResponseEntity<>(all , HttpStatus.OK);
@@ -47,23 +54,40 @@ public class BlogController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{userName}/{blogId}")
-    public ResponseEntity<?> deleteBlog(@PathVariable ObjectId blogId , @PathVariable String userName){
-        UserEntity user = userService.findByUserName(userName);
+    @DeleteMapping("/{blogId}")
+    public ResponseEntity<?> deleteBlog(@PathVariable ObjectId blogId){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = userService.findByUserName(authentication.getName());
 
         if(user != null){
+
+            boolean found = user.getBlogs().removeIf(blog -> blog.getId().equals(blogId));
+
+            if(!found){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             blogService.deleteById(blogId);
-            user.getBlogs().removeIf(x -> x.getId().equals(blogId));
-            userService.saveEntry(user);
+            userService.saveOldEntry(user);
+
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("/{userName}/{blogId}")
-    public ResponseEntity<?> updateBlog(@PathVariable ObjectId blogId, @PathVariable String userName , @RequestBody BlogEntity newBlog){
+    @PutMapping("/{blogId}")
+    public ResponseEntity<?> updateBlog(@PathVariable ObjectId blogId, @RequestBody BlogEntity newBlog){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = userService.findByUserName(authentication.getName());
+
+        if(user == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        boolean found = user.getBlogs().stream().anyMatch(blog -> blog.getId().equals(blogId));
         Optional<BlogEntity> blogOptional = blogService.findById(blogId);
-        if(blogOptional.isPresent()){
+
+        if(blogOptional.isPresent() && found){
             BlogEntity oldBlog = blogOptional.get();
 
             oldBlog.setContent(
@@ -77,7 +101,7 @@ public class BlogController {
                             ? newBlog.getTitle()
                             : oldBlog.getTitle()
             );
-            blogService.saveEntry(oldBlog , userName);
+            blogService.saveEntry(oldBlog , user.getUserName());
             return new ResponseEntity<>(HttpStatus.OK);
 
         }
