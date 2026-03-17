@@ -43,10 +43,9 @@ public class BlogController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getBlog(@PathVariable String userName){
+    public ResponseEntity<?> getBlog(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = userService.findByUserName(authentication.getName());
-//        UserEntity user = userService.findByUserName(userName);
         List<BlogEntity> all = user.getBlogs();
         if(all != null && !all.isEmpty()){
             return new ResponseEntity<>(all , HttpStatus.OK);

@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 
 
 @Service
@@ -47,5 +48,10 @@ public class UserService {
     public void deleteByUserName(String username){
         userEntryRepository.deleteByUserName(username);
     }
+
+    public List<UserEntity> getAllUsers(){
+        return userEntryRepository.findAll();
+    }
+
 
 }
