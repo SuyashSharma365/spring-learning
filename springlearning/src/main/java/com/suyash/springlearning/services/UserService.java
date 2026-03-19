@@ -2,6 +2,7 @@ package com.suyash.springlearning.services;
 
 import com.suyash.springlearning.entity.UserEntity;
 import com.suyash.springlearning.repository.UserEntryRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,6 +14,7 @@ import java.util.List;
 
 
 @Service
+@Slf4j
 public class UserService {
 
     @Autowired
@@ -22,11 +24,19 @@ public class UserService {
 
 
     public void saveNewEntry(UserEntity userEntity){
-        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        if(userEntity.getRoles() == null){
-            userEntity.setRoles(Arrays.asList("USER"));
+
+        try {
+            userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+            if (userEntity.getRoles() == null) {
+                userEntity.setRoles(Arrays.asList("USER"));
+            }
+            userEntryRepository.save(userEntity);
+            log.info("User {} is Created" , userEntity.getUserName());
+        } catch (Exception e) {
+            log.error("Error occurred while saving user: {}", userEntity.getUserName(), e);
+            throw new RuntimeException(e);
         }
-        userEntryRepository.save(userEntity);
+
     }
 
     public void saveOldEntry(UserEntity userEntity){
