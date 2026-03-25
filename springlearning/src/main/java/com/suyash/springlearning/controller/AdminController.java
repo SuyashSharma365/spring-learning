@@ -1,8 +1,10 @@
 package com.suyash.springlearning.controller;
 
 
+import com.suyash.springlearning.cache.AppCache;
 import com.suyash.springlearning.entity.UserEntity;
 import com.suyash.springlearning.services.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin")
+@Slf4j
 public class AdminController {
 
     @Autowired
@@ -28,5 +31,14 @@ public class AdminController {
             return new ResponseEntity<>(users , HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Autowired
+    AppCache appCache;
+
+    @GetMapping("clear-app-cache")
+    public void clearappcache(){
+        log.info("APP cache is initialized");
+        appCache.init();
     }
 }
