@@ -2,6 +2,7 @@ package com.suyash.springlearning.Tests;
 
 
 import com.suyash.springlearning.entity.UserEntity;
+import com.suyash.springlearning.services.EmailService;
 import com.suyash.springlearning.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,5 +31,16 @@ public class UserTest {
         assertNotNull(savedUser);
         assertEquals("suyash", savedUser.getUserName());
     }
+
+    @Autowired
+    private EmailService emailService;
+
+    @Test
+    public void sendMail(){
+        emailService.sendMail("suyash3111@gmail.com",
+                "Testing",
+                "This is testing mail");
+    }
+
 
 }
