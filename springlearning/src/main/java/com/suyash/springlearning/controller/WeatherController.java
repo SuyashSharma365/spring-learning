@@ -28,6 +28,7 @@ public class WeatherController {
         log.info("User {} requested for weather api for city {}", authentication.getName() , city);
         try {
             double temp = weatherService.getTemperature(city);
+            System.out.println("API URL = " + temp);
 
             return ResponseEntity.ok(
                     Map.of(

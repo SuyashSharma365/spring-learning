@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class ConfigEntity {
 
-    private String key;
+    private String apiName;
 
-    private String value;
+    private String apiUrl;
 }

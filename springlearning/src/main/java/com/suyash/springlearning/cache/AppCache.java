@@ -2,7 +2,6 @@ package com.suyash.springlearning.cache;
 import com.suyash.springlearning.entity.ConfigEntity;
 import com.suyash.springlearning.repository.ConfigEntryRepository;
 import jakarta.annotation.PostConstruct;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +16,6 @@ public class AppCache {
         WEATHER_API;
     }
 
-
     @Autowired
     private ConfigEntryRepository configEntryRepository;
 
@@ -28,8 +26,10 @@ public class AppCache {
         appConfigCache = new HashMap<>();
         List<ConfigEntity> all = configEntryRepository.findAll();
         for(ConfigEntity configEntity : all){
-            appConfigCache.put(configEntity.getKey() , configEntity.getValue());
+            appConfigCache.put(configEntity.getApiName() , configEntity.getApiUrl());
+            System.out.println("This is congigs"+configEntity.toString());
         }
+
     }
 
 
