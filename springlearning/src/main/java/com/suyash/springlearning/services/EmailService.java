@@ -2,6 +2,7 @@ package com.suyash.springlearning.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,24 @@ public class EmailService {
             log.error("Error occured while Sending the mail" , e);
             throw new RuntimeException(e);
         }
+    }
+
+//    @KafkaListener(topics = "user-signup" , groupId = "email-group")
+//    public void consume(String email){
+//        sendMail(email ,"Succefully account has been created", "Thanks you for creating an account!");
+//    }
+
+    @KafkaListener(topics = "user-signup", groupId = "email-group")
+    public void consume(String email) {
+
+        if (email == null || !email.contains("@")) {
+            log.warn("Invalid email received from Kafka: {}", email);
+            return;
+        }
+
+        sendMail(email,
+                "Account created successfully",
+                "Thank you for creating an account!");
     }
 
 }

@@ -26,6 +26,7 @@ public class UserEntity {
     @NonNull
     private String userName;
 
+    private String email;
     @NonNull
     private String password;
 
